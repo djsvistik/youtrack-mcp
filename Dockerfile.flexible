@@ -1,0 +1,29 @@
+FROM python:3.13-alpine
+
+WORKDIR /app
+
+# Copy requirements first to leverage Docker cache
+COPY requirements.txt .
+RUN pip install --no-cache-dir --root-user-action=ignore --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements.txt && \
+    python -c "import mcp; print(dir(mcp))"
+
+# Copy the rest of the application
+COPY . .
+
+# Default environment variables (will be overridden at runtime)
+ENV MCP_SERVER_NAME="youtrack-mcp"
+ENV MCP_SERVER_DESCRIPTION="YouTrack MCP Server"
+ENV MCP_DEBUG="false"
+ENV YOUTRACK_VERIFY_SSL="true"
+ENV MCP_TRANSPORT="stdio"
+ENV MCP_HOST="0.0.0.0"
+
+# Expose the HTTP port (only used when MCP_TRANSPORT=http)
+EXPOSE 8000
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Use the entrypoint script to determine transport mode
+ENTRYPOINT ["/docker-entrypoint.sh"]
