@@ -1,0 +1,28 @@
+--- a/youtrack_mcp/server.py
++++ b/youtrack_mcp/server.py
+@@ -47,11 +47,19 @@
+         # Store the transport mode for later reference
+         self.transport_mode = transport
+ 
+-        # Initialize server with ToolServerBase
+-        self.server = ToolServerBase(
+-            name=config.MCP_SERVER_NAME,
+-            instructions=config.MCP_SERVER_DESCRIPTION,
+-            transport=transport,  # ToolServerBase expects 'transport' parameter
+-        )
++        # Initialize server with ToolServerBase - FastMCP doesn't accept 'transport' parameter
++        if transport == "http":
++            self.server = ToolServerBase(
++                name=config.MCP_SERVER_NAME,
++                instructions=config.MCP_SERVER_DESCRIPTION,
++                host="0.0.0.0",
++                port=8000,
++            )
++        else:
++            self.server = ToolServerBase(
++                name=config.MCP_SERVER_NAME,
++                instructions=config.MCP_SERVER_DESCRIPTION,
++            )
+ 
+         # Initialize tool registry
+         self._tools: Dict[str, Callable] = {}

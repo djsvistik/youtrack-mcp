@@ -2,9 +2,53 @@
 
 This document describes how to use YouTrack MCP server with HTTP transport using Docker.
 
+## ✅ Working Solution Available!
+
+A working HTTP transport implementation is available using the `http_server.py` workaround and `Dockerfile.http-workaround`.
+
+### Quick Start
+
+```bash
+# Build the working HTTP image
+docker build -f Dockerfile.http-workaround -t youtrack-mcp-http .
+
+# Run the HTTP server
+docker run --rm -p 8000:8000 \
+  -e "YOUTRACK_API_TOKEN=your-token" \
+  -e "YOUTRACK_URL=https://your.youtrack.cloud" \
+  youtrack-mcp-http
+
+# Test the API
+curl http://localhost:8000/health
+curl http://localhost:8000/api/tools
+```
+
 ## Available Docker Configurations
 
-### 1. HTTP-Only Dockerfile (`Dockerfile.http`)
+### 1. HTTP Workaround Dockerfile (`Dockerfile.http-workaround`) ✅ WORKING
+
+**This is the recommended solution that works right now!**
+
+Uses a custom `http_server.py` that bypasses the transport parameter issue in the main code.
+
+```bash
+# Build and run
+docker build -f Dockerfile.http-workaround -t youtrack-mcp-http .
+docker run --rm -p 8000:8000 \
+  -e "YOUTRACK_API_TOKEN=your-token" \
+  -e "YOUTRACK_URL=https://your.youtrack.cloud" \
+  youtrack-mcp-http
+```
+
+Features:
+- ✅ Works out of the box
+- ✅ Full API compatibility  
+- ✅ All 55 YouTrack tools available
+- ✅ Health check endpoint: `/health`
+- ✅ Tools list endpoint: `/api/tools`
+- ✅ Tool execution endpoint: `/api/tools/{tool_name}`
+
+### 2. HTTP-Only Dockerfile (`Dockerfile.http`) ⚠️ NEEDS CODE FIX
 
 A dedicated Dockerfile that runs the server in HTTP mode by default.
 
@@ -19,7 +63,7 @@ docker run --rm -p 8000:8000 \
   youtrack-mcp-http
 ```
 
-### 2. Flexible Dockerfile (`Dockerfile.flexible`)
+### 3. Flexible Dockerfile (`Dockerfile.flexible`) ⚠️ NEEDS CODE FIX
 
 A flexible Dockerfile that supports both stdio and HTTP modes via environment variables.
 

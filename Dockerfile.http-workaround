@@ -1,0 +1,22 @@
+FROM python:3.13-alpine
+
+WORKDIR /app
+
+# Copy requirements first to leverage Docker cache
+COPY requirements.txt .
+RUN pip install --no-cache-dir --root-user-action=ignore --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements.txt
+
+# Copy the rest of the application
+COPY . .
+
+# Default environment variables (will be overridden at runtime)
+ENV MCP_SERVER_NAME="youtrack-mcp"
+ENV MCP_SERVER_DESCRIPTION="YouTrack MCP Server"
+ENV MCP_DEBUG="false"
+ENV YOUTRACK_VERIFY_SSL="true"
+
+# Expose the HTTP port
+EXPOSE 8000
+
+# Run the HTTP server using the workaround script
+CMD ["python", "http_server.py", "--host", "0.0.0.0", "--port", "8000"]
